@@ -21,6 +21,9 @@
     <Filter Include="MPL\Test">
       <UniqueIdentifier>{a2f690bd-ada5-4224-99e5-362f1cf1d9ee}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Memory\Test">
+      <UniqueIdentifier>{663f5221-1c60-4bbc-87a4-77af83cc0c7c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -34,6 +37,9 @@
     </ClCompile>
     <ClCompile Include="MPL\Test\TestStringHash.cpp">
       <Filter>MPL\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="Memory\Test\TestFreeList.cpp">
+      <Filter>Memory\Test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -69,6 +75,18 @@
     </ClInclude>
     <ClInclude Include="MPL\TypeList.h">
       <Filter>MPL</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\FreeList.h">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\DefaultFreeList.h">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\ConstantGrowth.h">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\PlacementNewEmbeddedLink.h">
+      <Filter>Memory</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

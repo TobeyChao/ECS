@@ -142,6 +142,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Memory\Test\TestFreeList.cpp" />
     <ClCompile Include="MPL\Test\TestAlign.cpp" />
     <ClCompile Include="MPL\Test\TestCompileTimeCounter.cpp" />
     <ClCompile Include="MPL\Test\TestStringHash.cpp" />
@@ -155,6 +156,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Memory\ConstantGrowth.h" />
+    <ClInclude Include="Memory\DefaultFreeList.h" />
+    <ClInclude Include="Memory\FreeList.h" />
+    <ClInclude Include="Memory\PlacementNewEmbeddedLink.h" />
     <ClInclude Include="MPL\MPL.h" />
     <ClInclude Include="MPL\TypeList.h" />
     <ClInclude Include="MPL\Utils\Align.h" />
