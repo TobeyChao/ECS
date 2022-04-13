@@ -1,4 +1,6 @@
 #pragma once
+#include <cstdint>
+
 template<typename T, typename GrowthPolicy, typename AllocationPolicy>
 class FreeList : public GrowthPolicy, public AllocationPolicy
 {

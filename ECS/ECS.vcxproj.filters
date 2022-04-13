@@ -41,6 +41,12 @@
     <ClCompile Include="Memory\Test\TestFreeList.cpp">
       <Filter>Memory\Test</Filter>
     </ClCompile>
+    <ClCompile Include="AllocatorTest.cpp">
+      <Filter>Memory\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="MPL\Test\TestMPL.cpp">
+      <Filter>MPL\Test</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TypeID.h">
@@ -87,6 +93,9 @@
     </ClInclude>
     <ClInclude Include="Memory\PlacementNewEmbeddedLink.h">
       <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="ISystem.h">
+      <Filter>ECS</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

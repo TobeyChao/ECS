@@ -27,7 +27,7 @@ private:
 	std::vector<void*> m_Chunks;
 
 	// 因为使用块的前sizeof(char*)个字节作为链接下一个块的指针，所以最小是sizeof(char*)
-	constexpr static uint32_t BlockSize = std::max(sizeof(T), sizeof(char*));
+	constexpr static size_t BlockSize = std::max(sizeof(T), sizeof(char*));
 };
 
 template<typename T>
@@ -35,7 +35,7 @@ inline void PlacementNewEmbeddedLink<T>::Grow(uint32_t numBlocks)
 {
 	void* pChunk = malloc(numBlocks * BlockSize);
 	m_Chunks.push_back(pChunk);
-	for (int i = 0; i < numBlocks; i++)
+	for (uint32_t i = 0; i < numBlocks; i++)
 	{
 		Push((char*)pChunk + i * BlockSize);
 	}
@@ -64,7 +64,7 @@ inline void* PlacementNewEmbeddedLink<T>::Pop()
 template<typename T>
 inline uint32_t PlacementNewEmbeddedLink<T>::GetNumAllocated() const
 {
-	return m_Chunks.size();
+	return (uint32_t)m_Chunks.size();
 }
 
 template<typename T>

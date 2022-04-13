@@ -141,10 +141,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AllocatorTest.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Memory\Test\TestFreeList.cpp" />
     <ClCompile Include="MPL\Test\TestAlign.cpp" />
     <ClCompile Include="MPL\Test\TestCompileTimeCounter.cpp" />
+    <ClCompile Include="MPL\Test\TestMPL.cpp" />
     <ClCompile Include="MPL\Test\TestStringHash.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -156,6 +158,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="ISystem.h" />
     <ClInclude Include="Memory\ConstantGrowth.h" />
     <ClInclude Include="Memory\DefaultFreeList.h" />
     <ClInclude Include="Memory\FreeList.h" />
