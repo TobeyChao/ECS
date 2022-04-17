@@ -3,8 +3,7 @@
 #include "FixedChunkCacheFriendlyLink.h"
 #include "MultiTypeFixedChunk.h"
 
-template<typename TypeList>
 struct DefaultMultiTypeFixedChunk
 {
-	using Type = MultiTypeFixedChunk<TypeList, ConstantChunkSizeGrowth, FixedChunkCacheFriendlyLink<TypeList>>;
+	using Type = MultiTypeFixedChunk<ConstantChunkSizeGrowth, FixedChunkCacheFriendlyLink>;
 };

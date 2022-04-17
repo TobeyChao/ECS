@@ -297,3 +297,23 @@ struct TypeInsert<0, TypeList<TS...>, U>
 #pragma region TypeRemove
 
 #pragma endregion
+
+#pragma region ForEach
+template <typename Functor, typename T>
+constexpr void _ForEachImpl(Functor&& f)
+{
+	f.template operator() < T > ();
+}
+
+template <typename TypeList, typename Functor, std::size_t... Is>
+constexpr void _ForEach(Functor&& f, std::index_sequence<Is...>)
+{
+	(_ForEachImpl<Functor, typename TypeAt<Is, TypeList>::Type>(std::forward<Functor>(f)), ...);
+}
+
+template <typename TypeList, typename Functor>
+constexpr void ForEach(Functor&& f)
+{
+	_ForEach<TypeList, Functor>(std::forward<Functor>(f), std::make_index_sequence<Size<TypeList>()>());
+}
+#pragma endregion

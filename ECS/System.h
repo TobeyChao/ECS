@@ -16,7 +16,7 @@ public:
 		ParseDataStructure();
 	}
 
-	void SetEntityAdmin(EntityAdmin* admin)
+	virtual void SetEntityAdmin(EntityAdmin* admin)
 	{
 		m_Admin = admin;
 	}
@@ -67,7 +67,7 @@ public:
 	template<typename T>
 	T* Get(EntityID ID)
 	{
-		return nullptr;
+		return m_Admin->GetComponent<T>(ID);
 	}
 
 private:

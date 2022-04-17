@@ -1,17 +1,22 @@
 #pragma once
 #include "Memory/DefaultMultiTypeFixedChunk.h"
+#include <memory>
 
-template<typename TypeList>
 struct Archetype
 {
-	using PoolType = typename DefaultMultiTypeFixedChunk<TypeList>::Type;
-	static PoolType Pool;
+	using PoolType = typename DefaultMultiTypeFixedChunk::Type;
 };
-
-template<typename TypeList>
-typename Archetype<TypeList>::PoolType Archetype<TypeList>::Pool = Archetype<TypeList>::PoolType();
 
 namespace ArchetypeStorage
 {
-	
+	std::unordered_map<size_t, Archetype::PoolType*> g_Pools;
+
+	Archetype::PoolType& Get(size_t hash)
+	{
+		if (!g_Pools.contains(hash))
+		{
+			g_Pools[hash] = new Archetype::PoolType();
+		}
+		return *g_Pools[hash];
+	}
 }

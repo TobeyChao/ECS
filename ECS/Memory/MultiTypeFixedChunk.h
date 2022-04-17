@@ -1,26 +1,33 @@
 #ifndef __MULTI_TYPE_FIXED_CHUNK__
 #define __MULTI_TYPE_FIXED_CHUNK__
-#include "../MPL/TypeList.h"
 #include "ChunkHandle.h"
 
-template<typename TypeList, typename GrowthPolicy, typename AllocationPolicy>
+template<typename GrowthPolicy, typename AllocationPolicy>
 class MultiTypeFixedChunk : public GrowthPolicy, public AllocationPolicy
 {
 public:
 	MultiTypeFixedChunk()
-	{
-		uint32_t bytesToPrealloc = GrowthPolicy::GetBytesToPreAllocate();
-		AllocationPolicy::ParseDataStructure(bytesToPrealloc);
-		if (bytesToPrealloc > 0)
-		{
-			AllocationPolicy::Grow(bytesToPrealloc);
-		}
-	}
+		:
+		m_Ready(false)
+	{}
 	MultiTypeFixedChunk(const MultiTypeFixedChunk&) = delete;
 	MultiTypeFixedChunk(MultiTypeFixedChunk&&) = delete;
 	MultiTypeFixedChunk& operator=(const MultiTypeFixedChunk&) = delete;
 	MultiTypeFixedChunk& operator=(MultiTypeFixedChunk&&) = delete;
 	~MultiTypeFixedChunk() = default;
+
+	template<typename TypeList>
+	bool Init()
+	{
+		uint32_t bytesToPrealloc = GrowthPolicy::GetBytesToPreAllocate();
+		AllocationPolicy::template Init<TypeList>(bytesToPrealloc);
+		if (bytesToPrealloc > 0)
+		{
+			AllocationPolicy::Grow(bytesToPrealloc);
+		}
+		m_Ready = true;
+		return true;
+	}
 
 	ChunkHandle* Allocate()
 	{
@@ -56,5 +63,6 @@ public:
 	}
 
 private:
+	bool m_Ready;
 };
 #endif // !__MULTI_TYPE_FIXED_CHUNK__

@@ -5,7 +5,10 @@
 #include "ChunkHandle.h"
 #include "../MPL/TypeList.h"
 
-template<typename TypeList>
+#ifdef _DEBUG
+#include <iostream>
+#endif // DEBUG
+
 class FixedChunkCacheFriendlyLink
 {
 protected:
@@ -18,11 +21,12 @@ protected:
 		m_Chunks.clear();
 	}
 
-	void ParseDataStructure(uint64_t ChunkSize)
+	template<typename TypeList>
+	bool Init(uint64_t ChunkSize)
 	{
-		size_t 
-		m_ElementMaxCount = ChunkSize / s_ElementSize;
-		_ParseDataStructure<Size<TypeList>() - 1>(m_ElementMaxCount * s_ElementSize);
+		m_ElementSize = SizeSum<TypeList>::Value;
+		m_ElementMaxCount = ChunkSize / m_ElementSize;
+		_ParseDataStructure<TypeList>(std::make_index_sequence<Size<TypeList>()>());
 
 #ifdef _DEBUG
 		for (auto& [hash, tpl] : m_TypeOffset)
@@ -31,6 +35,7 @@ protected:
 			std::cout << "Hash: " << hash << " Addr: " << offset << " Size: " << size << std::endl;
 		}
 #endif // DEBUG
+		return true;
 	}
 
 	void Grow(uint64_t SizeInBytes)
@@ -76,21 +81,21 @@ protected:
 
 	void Destroy(ChunkHandle* handle)
 	{
-		_Destroy<Size<TypeList>() - 1>(handle);
+		_Destroy(handle);
 	}
 
 	void Push(ChunkHandle* handle)
 	{
 		// 计算得到最后一个数据的Handle
 		uint64_t TheLastChunkIndex = m_Chunks.size() - 1;
-		uint32_t TheLastDataIndex = m_CurIndex - 1;
+		uint64_t TheLastDataIndex = m_CurIndex - 1;
 		uint64_t TheLastKey = GetHandleKey(TheLastChunkIndex, TheLastDataIndex);
 		// 需要释放的
 		uint64_t ToReleaseChunkIndex = handle->ChunkIndex;
-		uint32_t ToReleaseDataIndex = handle->DataIndex;
+		uint64_t ToReleaseDataIndex = handle->DataIndex;
 		uint64_t ToReleaseKey = GetHandleKey(ToReleaseChunkIndex, ToReleaseDataIndex);
 
-		_Push<Size<TypeList>() - 1>(handle);
+		_Push(handle);
 
 		// 更改最后一个数据的Chunk和Data的Index
 		m_Handles[TheLastKey]->ChunkIndex = ToReleaseChunkIndex;
@@ -105,70 +110,44 @@ protected:
 	}
 
 private:
-	template<size_t Index>
-	void _ParseDataStructure(uint64_t preOffset)
+	template<typename TypeList, std::size_t... Is>
+	constexpr void _ParseDataStructure(std::index_sequence<Is...>)
 	{
-		using t = typename TypeAt<Index, TypeList>::Type;
-		uint64_t offset = preOffset - m_ElementMaxCount * sizeof(t);
-		m_TypeOffset[typeid(t).hash_code()] = std::make_tuple(offset, sizeof(t));
-		_ParseDataStructure<Index - 1>(offset);
+		uint64_t offset = 0;
+		(_ParseDataStructureImpl<typename TypeAt<Is, TypeList>::Type>(offset), ...);
 	}
 
-	template<>
-	void _ParseDataStructure<0>(uint64_t preOffset)
+	template<typename T>
+	constexpr void _ParseDataStructureImpl(uint64_t& offset)
 	{
-		using t = typename TypeAt<0, TypeList>::Type;
-		m_TypeOffset[typeid(t).hash_code()] = std::make_tuple(preOffset - m_ElementMaxCount * sizeof(t), sizeof(t));
+		m_TypeOffset[typeid(T).hash_code()] = std::make_tuple(offset, sizeof(T));
+		offset = offset + m_ElementMaxCount * sizeof(T);
 	}
 
-	template<size_t Index>
 	void _Destroy(ChunkHandle* handle)
 	{
-		using t = typename TypeAt<Index, TypeList>::Type;
-		void* chunk = m_Chunks[handle->ChunkIndex];
-		uint32_t offset = std::get<0>(m_TypeOffset[typeid(t).hash_code()]);
-		void* addr = (uint8_t*)chunk + offset + handle->DataIndex * sizeof(t);
-		((t*)addr)->~t();
-		_Destroy<Index - 1>(handle);
+		for (auto& [hash, tpl] : m_TypeOffset)
+		{
+			auto& [offset, size] = tpl;
+			void* chunk = m_Chunks[handle->ChunkIndex];
+			void* addr = (uint8_t*)chunk + offset + handle->DataIndex * size;
+			// TODO 如何调用析构函数
+		}
 	}
 
-	template<>
-	void _Destroy<0>(ChunkHandle* handle)
-	{
-		using t = typename TypeAt<0, TypeList>::Type;
-		void* chunk = m_Chunks[handle->ChunkIndex];
-		uint32_t offset = std::get<0>(m_TypeOffset[typeid(t).hash_code()]);
-		void* addr = (uint8_t*)chunk + offset + handle->DataIndex * sizeof(t);
-		((t*)addr)->~t();
-	}
-
-	template<size_t Index>
 	void _Push(ChunkHandle* handle)
 	{
-		void* chunk = m_Chunks[handle->ChunkIndex];
-		void* theLastChunk = m_Chunks.back();
-		using t = typename TypeAt<Index, TypeList>::Type;
-		size_t size = sizeof(t);
-		uint32_t typeOffset = std::get<0>(m_TypeOffset[typeid(t).hash_code()]);
-		uint32_t dataOffset = handle->DataIndex * sizeof(t);
-		uint32_t lastOffset = (m_CurIndex - 1) * sizeof(t);
-		memcpy((uint8_t*)chunk + typeOffset + dataOffset, (uint8_t*)theLastChunk + typeOffset + lastOffset, size);
-		memset((uint8_t*)theLastChunk + typeOffset + lastOffset, 0, size);
-		_Push<Index - 1>(handle);
-	}
-
-	template<>
-	void _Push<0>(ChunkHandle* handle)
-	{
-		void* chunk = m_Chunks[handle->ChunkIndex];
-		void* theLastChunk = m_Chunks.back();
-		using t = typename TypeAt<0, TypeList>::Type;
-		size_t size = sizeof(t);
-		uint32_t typeOffset = std::get<0>(m_TypeOffset[typeid(t).hash_code()]);
-		uint32_t dataOffset = handle->DataIndex * sizeof(t);
-		uint32_t lastOffset = (m_CurIndex - 1) * sizeof(t);
-		memcpy((uint8_t*)chunk + typeOffset + dataOffset, (uint8_t*)theLastChunk + typeOffset + lastOffset, size);
-		memset((uint8_t*)theLastChunk + typeOffset + lastOffset, 0, size);
+		for (auto& [hash, tpl] : m_TypeOffset)
+		{
+			auto& [offset, size] = tpl;
+			void* chunk = m_Chunks[handle->ChunkIndex];
+			void* theLastChunk = m_Chunks.back();
+			uint64_t typeOffset = offset;
+			uint64_t dataOffset = handle->DataIndex * size;
+			uint64_t lastOffset = (m_CurIndex - 1) * size;
+			memcpy((uint8_t*)chunk + typeOffset + dataOffset, (uint8_t*)theLastChunk + typeOffset + lastOffset, size);
+			memset((uint8_t*)theLastChunk + typeOffset + lastOffset, 0, size);
+		}
 	}
 
 	uint64_t GetHandleKey(uint64_t ChunkIndex, uint64_t DataIndex)
@@ -184,9 +163,10 @@ private:
 	// TypeHash -> [Offset, Size]
 	std::unordered_map<size_t, std::tuple<uint64_t, uint64_t>> m_TypeOffset;
 
-	constexpr static size_t s_ElementSize = SizeSum<TypeList>::Value;
 	uint64_t m_ElementMaxCount;
 	std::unordered_map<uint64_t, ChunkHandle*> m_Handles;
+
+	size_t m_ElementSize = 0;
 };
 
 #endif // !__FIXED_CHUNK_CACHE_FRIENDLY_LINK__

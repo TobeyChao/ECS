@@ -42,9 +42,9 @@ public:
 			Position* pos = Get<Position>(it);
 			Velocity* vel = Get<Velocity>(it);
 
-			pos->x *= vel->x * deltaTime;
-			pos->y *= vel->y * deltaTime;
-			pos->z *= vel->z * deltaTime;
+			pos->x += vel->x * deltaTime;
+			pos->y += vel->y * deltaTime;
+			pos->z += vel->z * deltaTime;
 		}
 	}
 };
@@ -55,11 +55,13 @@ int main()
 	admin.RegisterSystem<MoveSystem>();
 
 	using T = TypeList<Position, Velocity>;
-	const EntityID& id = admin.CreateEntity<T>();
-	Position* p1 = admin.SetComponentData<T, Position>(id, 1.0f, 1.0f, 1.0f);
-	Velocity* p2 = admin.SetComponentData<T, Velocity>(id, 2.0f, 2.0f, 2.0f);
+	admin.RegisterArchetype<T>();
 
-	admin.Update(0.033f);
+	const EntityID& id = admin.CreateEntity<T>();
+	Position* p1 = admin.SetComponentData<Position>(id, 1.0f, 1.0f, 1.0f);
+	Velocity* p2 = admin.SetComponentData<Velocity>(id, 2.0f, 2.0f, 2.0f);
+
+	admin.Update(1.f);
 
 	return 0;
 }
