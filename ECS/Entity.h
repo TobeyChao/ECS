@@ -1,15 +1,11 @@
 #pragma once
 #include "TypeID.h"
-
-// EntityID
-// array<Component*>
-// resourceHandle
+#include "Memory/ChunkHandle.h"
+#include <unordered_set>
 
 class Entity
 {
 public:
-	EntityID m_EntityID;
-
-private:
-
+	EntityID EntityID;
+	Handle* MemHandle;
 };

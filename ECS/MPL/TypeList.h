@@ -1,5 +1,6 @@
 #pragma once
 #include <tuple>
+#include <functional>
 
 #pragma region TypeList
 using std::tuple;
@@ -23,29 +24,50 @@ template<typename TypeList>
 using TypeListToTuple_t = typename TypeListToTuple<TypeList>::Type;
 #pragma endregion
 
-#pragma region Size : TypeList
+#pragma region Check
+// ≈–∂œ «≤ª «TypeList
+template<typename T>
+struct IsTypeList
+{
+	constexpr static bool Value = std::false_type();
+};
+
 template<typename ...T>
-struct TSSize;
-
-template<>
-struct TSSize<>
+struct IsTypeList<TypeList<T...>>
 {
-	static constexpr size_t Value = 0;
+	constexpr static bool Value = std::true_type();
 };
+#pragma endregion
 
-template<typename This, typename ...Rest>
-struct TSSize<This, Rest...>
-{
-	static constexpr size_t Value = TSSize<Rest...>::Value + 1;
-};
+#pragma region Size
+//template<typename ...T>
+//struct TSSize;
+//
+//template<>
+//struct TSSize<>
+//{
+//	static constexpr size_t Value = 0;
+//};
+//
+//template<typename This, typename ...Rest>
+//struct TSSize<This, Rest...>
+//{
+//	static constexpr size_t Value = TSSize<Rest...>::Value + 1;
+//};
 
 template<typename ...TS>
 struct TLSize;
 
+//template<typename ...TS>
+//struct TLSize<TypeList<TS...>>
+//{
+//	static constexpr size_t Value = TSSize<TS...>::Value;
+//};
+
 template<typename ...TS>
 struct TLSize<TypeList<TS...>>
 {
-	static constexpr size_t Value = TSSize<TS...>::Value;
+	static constexpr size_t Value = sizeof...(TS);
 };
 
 template<typename TypeList>
@@ -54,12 +76,36 @@ constexpr size_t Size()
 	return TLSize<TypeList>::Value;
 }
 
+//template<typename ...TS>
+//constexpr size_t Size_TS()
+//{
+//	return TSSize<TS...>::Value;
+//}
+
 template<typename ...TS>
 constexpr size_t Size_TS()
 {
-	return TSSize<TS...>::Value;
+	return sizeof...(TS);
 }
 #pragma endregion
+
+#pragma region SizeSum
+template<typename ...TS>
+struct SizeSum;
+
+template<typename T, typename ...TS>
+struct SizeSum<TypeList<T, TS...>>
+{
+	static constexpr size_t Value = sizeof(T) + SizeSum<TypeList<TS...>>::Value;
+};
+
+template<>
+struct SizeSum<TypeList<>>
+{
+	static constexpr size_t Value = 0;
+};
+#pragma endregion
+
 
 #pragma region Contain
 template<typename T, typename...TS>
@@ -140,4 +186,114 @@ struct IndexOf<T, TypeList<TS...>>
 {
 	static constexpr size_t Value = TSIndexOf<T, TS...>::Value;
 };
+#pragma endregion
+
+#pragma region TypeAt
+template<size_t Index, typename TypeList>
+struct TypeAt;
+
+template<size_t Index, typename This, typename ...Rest>
+struct TypeAt<Index, TypeList<This, Rest...>>
+{
+	using Type = typename TypeAt<Index - 1, TypeList<Rest...>>::Type;
+};
+
+template<typename This, typename ...Rest>
+struct TypeAt<0, TypeList<This, Rest...>>
+{
+	using Type = This;
+};
+#pragma endregion
+
+#pragma region TypeAtFrontOrBack
+template<typename TypeList>
+struct TypesFront
+{
+	using Type = typename TypeAt<0, TypeList>::Type;
+};
+
+template<typename TypeList>
+struct TypesBack
+{
+	using Type = typename TypeAt<TLSize<TypeList>::Value - 1, TypeList>::Type;
+};
+#pragma endregion
+
+#pragma region TypeListLink
+template<typename T, typename U>
+struct TypeListLink
+{
+	using Type = TypeList<T, U>;
+};
+
+template<typename T, typename ...TS>
+struct TypeListLink<T, TypeList<TS...>>
+{
+	using Type = TypeList<T, TS...>;
+};
+
+template<typename ...TS, typename T>
+struct TypeListLink<TypeList<TS...>, T>
+{
+	using Type = TypeList<TS..., T>;
+};
+
+template<typename ...TS, typename ...US>
+struct TypeListLink<TypeList<TS...>, TypeList<US...>>
+{
+	using Type = TypeList<TS..., US...>;
+};
+#pragma endregion
+
+#pragma region TypeAssign
+template<size_t N, typename T>
+struct TypeAssign
+{
+private:
+	using RestTypes = typename TypeAssign<N - 1, T>::Type;
+public:
+	using Type = typename TypeListLink<T, RestTypes>::Type;
+};
+
+template<typename T>
+struct TypeAssign<0, T>
+{
+	using Type = TypeList<>;
+};
+#pragma endregion
+
+#pragma region TypeInsert
+template<size_t Index, typename TypeList, typename U>
+struct TypeInsert;
+
+template<size_t Index, typename U, typename T, typename ...TS>
+struct TypeInsert<Index, TypeList<T, TS...>, U>
+{
+private:
+	using RestTypes = typename TypeInsert<Index - 1, TypeList<TS...>, U>::Type;
+public:
+	using Type = typename TypeListLink<T, RestTypes>::Type;
+};
+
+template<typename U, typename T, typename ...TS>
+struct TypeInsert<0, TypeList<T, TS...>, U>
+{
+	using Type = typename TypeListLink<U, TypeList<T, TS...>>::Type;
+};
+
+template<typename U, typename ...TS>
+struct TypeInsert<0, TypeList<TS...>, U>
+{
+	using Type = typename TypeListLink<U, TypeList<TS...>>::Type;
+};
+
+//template<typename U>
+//struct TypeInsert<0, TypeList<>, U>
+//{
+//	using Type = typename TypeListLink<U, TypeList<>>::Type;
+//};
+#pragma endregion
+
+#pragma region TypeRemove
+
 #pragma endregion

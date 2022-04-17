@@ -116,7 +116,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -141,15 +141,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AllocatorTest.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Memory\Test\AllocatorTest.cpp" />
     <ClCompile Include="Memory\Test\TestFreeList.cpp" />
+    <ClCompile Include="Memory\Test\TestMultiTypeFixedChunk.cpp" />
     <ClCompile Include="MPL\Test\TestAlign.cpp" />
     <ClCompile Include="MPL\Test\TestCompileTimeCounter.cpp" />
     <ClCompile Include="MPL\Test\TestMPL.cpp" />
     <ClCompile Include="MPL\Test\TestStringHash.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Archetype.h" />
     <ClInclude Include="Component.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </ExcludedFromBuild>
@@ -159,9 +161,14 @@
       </ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="ISystem.h" />
-    <ClInclude Include="Memory\ConstantGrowth.h" />
+    <ClInclude Include="Memory\ChunkHandle.h" />
+    <ClInclude Include="Memory\ConstantChunkSizeGrowth.h" />
+    <ClInclude Include="Memory\ConstantElementCountGrowth.h" />
     <ClInclude Include="Memory\DefaultFreeList.h" />
+    <ClInclude Include="Memory\DefaultMultiTypeFixedChunk.h" />
+    <ClInclude Include="Memory\FixedChunkCacheFriendlyLink.h" />
     <ClInclude Include="Memory\FreeList.h" />
+    <ClInclude Include="Memory\MultiTypeFixedChunk.h" />
     <ClInclude Include="Memory\PlacementNewEmbeddedLink.h" />
     <ClInclude Include="MPL\MPL.h" />
     <ClInclude Include="MPL\TypeList.h" />

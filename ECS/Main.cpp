@@ -5,6 +5,13 @@ using namespace std;
 
 struct Position
 {
+	Position(float _x, float _y, float _z)
+		:
+		x(_x),
+		y(_y),
+		z(_z)
+	{}
+
 	float x;
 	float y;
 	float z;
@@ -12,6 +19,13 @@ struct Position
 
 struct Velocity
 {
+	Velocity(float _x, float _y, float _z)
+		:
+		x(_x),
+		y(_y),
+		z(_z)
+	{}
+
 	float x;
 	float y;
 	float z;
@@ -37,10 +51,16 @@ public:
 int main()
 {
 	EntityAdmin admin;
-	admin.RegisterComponent<Position>();
-	admin.RegisterComponent<Velocity>();
+	//admin.RegisterComponent<Position>();
+	//admin.RegisterComponent<Velocity>();
 
 	admin.RegisterSystem<MoveSystem>();
+
+	using t = TypeList<Position, Velocity>;
+
+	const EntityID& id = admin.CreateEntity<t>();
+	Position* p1 = admin.SetComponentData<t, Position>(id, 1, 1, 1);
+	Velocity* p2 = admin.SetComponentData<t, Velocity>(id, 2, 2, 2);
 
 	admin.Update(0.033f);
 

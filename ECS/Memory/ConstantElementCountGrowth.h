@@ -1,10 +1,10 @@
 #pragma once
 #include <cstdint>
 
-class ConstantGrowth
+class ConstantElementCountGrowth
 {
 public:
-	ConstantGrowth(uint32_t preAllocate = 16u, uint32_t grow = 16u)
+	ConstantElementCountGrowth(uint32_t preAllocate = 16u, uint32_t grow = 16u)
 		:
 		m_PreAllocate(preAllocate),
 		m_NumToGrow(grow)

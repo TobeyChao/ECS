@@ -38,14 +38,17 @@
     <ClCompile Include="MPL\Test\TestStringHash.cpp">
       <Filter>MPL\Test</Filter>
     </ClCompile>
+    <ClCompile Include="MPL\Test\TestMPL.cpp">
+      <Filter>MPL\Test</Filter>
+    </ClCompile>
     <ClCompile Include="Memory\Test\TestFreeList.cpp">
       <Filter>Memory\Test</Filter>
     </ClCompile>
-    <ClCompile Include="AllocatorTest.cpp">
+    <ClCompile Include="Memory\Test\TestMultiTypeFixedChunk.cpp">
       <Filter>Memory\Test</Filter>
     </ClCompile>
-    <ClCompile Include="MPL\Test\TestMPL.cpp">
-      <Filter>MPL\Test</Filter>
+    <ClCompile Include="Memory\Test\AllocatorTest.cpp">
+      <Filter>Memory\Test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -82,20 +85,38 @@
     <ClInclude Include="MPL\TypeList.h">
       <Filter>MPL</Filter>
     </ClInclude>
-    <ClInclude Include="Memory\FreeList.h">
+    <ClInclude Include="ISystem.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\ConstantElementCountGrowth.h">
       <Filter>Memory</Filter>
     </ClInclude>
     <ClInclude Include="Memory\DefaultFreeList.h">
       <Filter>Memory</Filter>
     </ClInclude>
-    <ClInclude Include="Memory\ConstantGrowth.h">
+    <ClInclude Include="Memory\FixedChunkCacheFriendlyLink.h">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\FreeList.h">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\MultiTypeFixedChunk.h">
       <Filter>Memory</Filter>
     </ClInclude>
     <ClInclude Include="Memory\PlacementNewEmbeddedLink.h">
       <Filter>Memory</Filter>
     </ClInclude>
-    <ClInclude Include="ISystem.h">
+    <ClInclude Include="Memory\DefaultMultiTypeFixedChunk.h">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\ConstantChunkSizeGrowth.h">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Archetype.h">
       <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\ChunkHandle.h">
+      <Filter>Memory</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
