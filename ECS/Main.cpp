@@ -1,5 +1,6 @@
 #include <iostream>
 #include "EntityAdmin.h"
+#include "System.h"
 
 using namespace std;
 
@@ -36,10 +37,10 @@ class MoveSystem : public System<Position, Velocity>
 public:
 	virtual void Update(float deltaTime) override
 	{
-		for (auto& it : m_ComponentTuples)
+		for (auto& it : m_EntitiesCache)
 		{
-			Position* pos = std::get<Position*>(it);
-			Velocity* vel = std::get<Velocity*>(it);
+			Position* pos = Get<Position>(it);
+			Velocity* vel = Get<Velocity>(it);
 
 			pos->x *= vel->x * deltaTime;
 			pos->y *= vel->y * deltaTime;
@@ -51,16 +52,12 @@ public:
 int main()
 {
 	EntityAdmin admin;
-	//admin.RegisterComponent<Position>();
-	//admin.RegisterComponent<Velocity>();
-
 	admin.RegisterSystem<MoveSystem>();
 
-	using t = TypeList<Position, Velocity>;
-
-	const EntityID& id = admin.CreateEntity<t>();
-	Position* p1 = admin.SetComponentData<t, Position>(id, 1, 1, 1);
-	Velocity* p2 = admin.SetComponentData<t, Velocity>(id, 2, 2, 2);
+	using T = TypeList<Position, Velocity>;
+	const EntityID& id = admin.CreateEntity<T>();
+	Position* p1 = admin.SetComponentData<T, Position>(id, 1.0f, 1.0f, 1.0f);
+	Velocity* p2 = admin.SetComponentData<T, Velocity>(id, 2.0f, 2.0f, 2.0f);
 
 	admin.Update(0.033f);
 

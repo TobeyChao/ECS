@@ -55,9 +55,6 @@
     <ClInclude Include="TypeID.h">
       <Filter>ECS</Filter>
     </ClInclude>
-    <ClInclude Include="Component.h">
-      <Filter>ECS</Filter>
-    </ClInclude>
     <ClInclude Include="Entity.h">
       <Filter>ECS</Filter>
     </ClInclude>
@@ -112,10 +109,13 @@
     <ClInclude Include="Memory\ConstantChunkSizeGrowth.h">
       <Filter>Memory</Filter>
     </ClInclude>
-    <ClInclude Include="Archetype.h">
+    <ClInclude Include="ArchetypeStorage.h">
       <Filter>ECS</Filter>
     </ClInclude>
     <ClInclude Include="Memory\ChunkHandle.h">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\IMemoryPool.h">
       <Filter>Memory</Filter>
     </ClInclude>
   </ItemGroup>

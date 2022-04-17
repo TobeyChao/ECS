@@ -1,9 +1,5 @@
 #ifndef __MULTI_TYPE_FIXED_CHUNK__
 #define __MULTI_TYPE_FIXED_CHUNK__
-#include <typeindex>
-#include <typeinfo>
-#include <cassert>
-#include <memory>
 #include "../MPL/TypeList.h"
 #include "ChunkHandle.h"
 
@@ -26,9 +22,9 @@ public:
 	MultiTypeFixedChunk& operator=(MultiTypeFixedChunk&&) = delete;
 	~MultiTypeFixedChunk() = default;
 
-	Handle* Allocate()
+	ChunkHandle* Allocate()
 	{
-		Handle* handle = AllocationPolicy::Pop();
+		ChunkHandle* handle = AllocationPolicy::Pop();
 		if (!handle)
 		{
 			uint32_t growSize = GrowthPolicy::GetBytesToGrow();
@@ -42,18 +38,18 @@ public:
 	}
 
 	template<typename T, typename ...Args>
-	T* Create(Handle* handle, Args&&... args)
+	T* Create(ChunkHandle* handle, Args&&... args)
 	{
 		return AllocationPolicy::template Create<T, Args...>(handle, std::forward<decltype(args)>(args)...);
 	}
 
 	template<typename T>
-	T* Get(Handle* handle)
+	T* Get(ChunkHandle* handle)
 	{
 		return AllocationPolicy::template Get<T>(handle);
 	}
 
-	void Free(Handle* handle)
+	void Free(ChunkHandle* handle)
 	{
 		AllocationPolicy::Destroy(handle);
 		AllocationPolicy::Push(handle);

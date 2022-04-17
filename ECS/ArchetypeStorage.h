@@ -10,3 +10,8 @@ struct Archetype
 
 template<typename TypeList>
 typename Archetype<TypeList>::PoolType Archetype<TypeList>::Pool = Archetype<TypeList>::PoolType();
+
+namespace ArchetypeStorage
+{
+	
+}

@@ -3,16 +3,26 @@
 #include <vector>
 #include <unordered_map>
 #include "ChunkHandle.h"
+#include "../MPL/TypeList.h"
 
 template<typename TypeList>
 class FixedChunkCacheFriendlyLink
 {
 protected:
-	void ParseDataStructure(uint32_t ChunkSize)
+	~FixedChunkCacheFriendlyLink()
 	{
-		size_t ElementSize = SizeSum<TypeList>::Value;
-		m_ElementMaxCount = ChunkSize / ElementSize;
-		_ParseDataStructure<Size<TypeList>() - 1>(m_ElementMaxCount * ElementSize);
+		for (size_t i = 0; i < m_Chunks.size(); i++)
+		{
+			free(m_Chunks[i]);
+		}
+		m_Chunks.clear();
+	}
+
+	void ParseDataStructure(uint64_t ChunkSize)
+	{
+		size_t 
+		m_ElementMaxCount = ChunkSize / s_ElementSize;
+		_ParseDataStructure<Size<TypeList>() - 1>(m_ElementMaxCount * s_ElementSize);
 
 #ifdef _DEBUG
 		for (auto& [hash, tpl] : m_TypeOffset)
@@ -23,15 +33,14 @@ protected:
 #endif // DEBUG
 	}
 
-	void Grow(uint32_t SizeInBytes)
+	void Grow(uint64_t SizeInBytes)
 	{
 		void* pChunk = malloc(SizeInBytes);
 		m_Chunks.push_back(pChunk);
-		m_CurChunk = pChunk;
 		m_CurIndex = 0;
 	}
 
-	Handle* Pop()
+	ChunkHandle* Pop()
 	{
 		if (m_CurIndex >= m_ElementMaxCount)
 		{
@@ -40,7 +49,7 @@ protected:
 		auto DataIndex = m_CurIndex++;
 		auto ChunkIndex = m_Chunks.size() - 1;
 
-		Handle* handle = new Handle();
+		ChunkHandle* handle = new ChunkHandle();
 		handle->DataIndex = DataIndex;
 		handle->ChunkIndex = ChunkIndex;
 		m_Handles[GetHandleKey(ChunkIndex, DataIndex)] = handle;
@@ -48,29 +57,29 @@ protected:
 	}
 
 	template<typename T, typename ...Args>
-	T* Create(Handle* handle, Args&&... args)
+	T* Create(ChunkHandle* handle, Args&&... args)
 	{
 		void* chunk = m_Chunks[handle->ChunkIndex];
-		uint32_t offset = std::get<0>(m_TypeOffset[typeid(T).hash_code()]);
+		uint64_t offset = std::get<0>(m_TypeOffset[typeid(T).hash_code()]);
 		void* addr = (uint8_t*)chunk + offset + handle->DataIndex * sizeof(T);
 		return new(addr)T(std::forward<decltype(args)>(args)...);
 	}
 
 	template<typename T>
-	T* Get(Handle* handle)
+	T* Get(ChunkHandle* handle)
 	{
 		void* chunk = m_Chunks[handle->ChunkIndex];
-		uint32_t offset = std::get<0>(m_TypeOffset[typeid(T).hash_code()]);
+		uint64_t offset = std::get<0>(m_TypeOffset[typeid(T).hash_code()]);
 		void* addr = (uint8_t*)chunk + offset + handle->DataIndex * sizeof(T);
 		return (T*)addr;
 	}
 
-	void Destroy(Handle* handle)
+	void Destroy(ChunkHandle* handle)
 	{
 		_Destroy<Size<TypeList>() - 1>(handle);
 	}
 
-	void Push(Handle* handle)
+	void Push(ChunkHandle* handle)
 	{
 		// 计算得到最后一个数据的Handle
 		uint64_t TheLastChunkIndex = m_Chunks.size() - 1;
@@ -97,23 +106,23 @@ protected:
 
 private:
 	template<size_t Index>
-	void _ParseDataStructure(uint32_t preOffset)
+	void _ParseDataStructure(uint64_t preOffset)
 	{
 		using t = typename TypeAt<Index, TypeList>::Type;
-		uint32_t offset = preOffset - m_ElementMaxCount * sizeof(t);
+		uint64_t offset = preOffset - m_ElementMaxCount * sizeof(t);
 		m_TypeOffset[typeid(t).hash_code()] = std::make_tuple(offset, sizeof(t));
 		_ParseDataStructure<Index - 1>(offset);
 	}
 
 	template<>
-	void _ParseDataStructure<0>(uint32_t preOffset)
+	void _ParseDataStructure<0>(uint64_t preOffset)
 	{
 		using t = typename TypeAt<0, TypeList>::Type;
 		m_TypeOffset[typeid(t).hash_code()] = std::make_tuple(preOffset - m_ElementMaxCount * sizeof(t), sizeof(t));
 	}
 
 	template<size_t Index>
-	void _Destroy(Handle* handle)
+	void _Destroy(ChunkHandle* handle)
 	{
 		using t = typename TypeAt<Index, TypeList>::Type;
 		void* chunk = m_Chunks[handle->ChunkIndex];
@@ -124,7 +133,7 @@ private:
 	}
 
 	template<>
-	void _Destroy<0>(Handle* handle)
+	void _Destroy<0>(ChunkHandle* handle)
 	{
 		using t = typename TypeAt<0, TypeList>::Type;
 		void* chunk = m_Chunks[handle->ChunkIndex];
@@ -134,7 +143,7 @@ private:
 	}
 
 	template<size_t Index>
-	void _Push(Handle* handle)
+	void _Push(ChunkHandle* handle)
 	{
 		void* chunk = m_Chunks[handle->ChunkIndex];
 		void* theLastChunk = m_Chunks.back();
@@ -149,7 +158,7 @@ private:
 	}
 
 	template<>
-	void _Push<0>(Handle* handle)
+	void _Push<0>(ChunkHandle* handle)
 	{
 		void* chunk = m_Chunks[handle->ChunkIndex];
 		void* theLastChunk = m_Chunks.back();
@@ -162,23 +171,22 @@ private:
 		memset((uint8_t*)theLastChunk + typeOffset + lastOffset, 0, size);
 	}
 
-	uint64_t GetHandleKey(uint32_t ChunkIndex, uint32_t DataIndex)
+	uint64_t GetHandleKey(uint64_t ChunkIndex, uint64_t DataIndex)
 	{
-		return ((uint64_t)ChunkIndex << 32) | ((uint64_t)DataIndex);
+		return (ChunkIndex << 32) | DataIndex;
 	}
 
 private:
 	// 所有已经申请的内存
 	std::vector<void*> m_Chunks;
 	// Chunk Head
-	void* m_CurChunk;
 	uint64_t m_CurIndex;
 	// TypeHash -> [Offset, Size]
-	std::unordered_map<size_t, std::tuple<uint32_t, uint32_t>> m_TypeOffset;
+	std::unordered_map<size_t, std::tuple<uint64_t, uint64_t>> m_TypeOffset;
 
-	uint32_t m_ElementMaxCount;
-
-	std::unordered_map<uint64_t, Handle*> m_Handles;
+	constexpr static size_t s_ElementSize = SizeSum<TypeList>::Value;
+	uint64_t m_ElementMaxCount;
+	std::unordered_map<uint64_t, ChunkHandle*> m_Handles;
 };
 
 #endif // !__FIXED_CHUNK_CACHE_FRIENDLY_LINK__

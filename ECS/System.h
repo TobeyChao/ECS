@@ -1,11 +1,5 @@
 #pragma once
-#include "ISystem.h"
-#include "Entity.h"
 #include "MPL/TypeList.h"
-#include <tuple>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
 
 template<typename ...ComponentType>
 class System : public ISystem
@@ -22,6 +16,11 @@ public:
 		ParseDataStructure();
 	}
 
+	void SetEntityAdmin(EntityAdmin* admin)
+	{
+		m_Admin = admin;
+	}
+
 	void ParseDataStructure()
 	{
 		_ParseDataStructure<s_NumComponentCount - 1>();
@@ -36,16 +35,47 @@ public:
 
 	virtual void OnEntityCreated(const Entity& entity)
 	{
+		for (const size_t& comHash : m_ComponentHash)
+		{
+			if (!entity.ComponentHash.contains(comHash))
+			{
+				return;
+			}
+		}
+		m_EntitiesCache.push_back(entity.EntityID);
+		m_EntityIDToIndex[entity.EntityID] = m_EntitiesCache.size() - 1;
 	}
 
 	virtual void OnEntityModified(const Entity& entity)
 	{
-		size_t index = m_EntityIDToIndex[entity.EntityID];
-		const ComponentTuple& tpl = m_ComponentTuples[index];
+		// 如果改变了的Entity没有符合的组件啦，就把他删掉啦
+		for (const size_t& comHash : m_ComponentHash)
+		{
+			if (!entity.ComponentHash.contains(comHash))
+			{
+				RemoveEntityCache(entity.EntityID);
+				return;
+			}
+		}
 	}
 
 	virtual void OnEntityDestroyed(const Entity& entity)
 	{
+		RemoveEntityCache(entity.EntityID);
+	}
+
+	template<typename T>
+	T* Get(EntityID ID)
+	{
+		return nullptr;
+	}
+
+private:
+	void RemoveEntityCache(EntityID ID)
+	{
+		size_t index = m_EntityIDToIndex[ID];
+		m_EntitiesCache.erase(m_EntitiesCache.begin() + index);
+		m_EntityIDToIndex.erase(ID);
 	}
 
 private:
@@ -68,11 +98,10 @@ public:
 	static constexpr uint8_t s_NumComponentCount = sizeof...(ComponentType);
 
 protected:
-	std::vector<ComponentTuple> m_ComponentTuples;
+	std::vector<EntityID> m_EntitiesCache;
 
 private:
 	std::unordered_map<EntityID, size_t> m_EntityIDToIndex;
-	std::unordered_map<size_t, EntityID> m_IndexToEntityID;
-
 	std::unordered_set<size_t> m_ComponentHash;
+	EntityAdmin* m_Admin;
 };

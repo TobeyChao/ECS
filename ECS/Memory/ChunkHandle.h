@@ -1,8 +1,7 @@
 #pragma once
 #include <cstdint>
-struct Handle
+struct ChunkHandle
 {
-public:
-	uint32_t ChunkIndex;
-	uint32_t DataIndex;
+	uint64_t ChunkIndex;
+	uint64_t DataIndex;
 };
