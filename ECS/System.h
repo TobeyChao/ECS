@@ -4,11 +4,7 @@
 template<typename ...ComponentType>
 class System : public ISystem
 {
-public:
-	using Type = TypeList<ComponentType...>;
-
-protected:
-	using ComponentTuple = std::tuple<std::add_pointer_t<ComponentType>...>;
+	friend EntityAdmin;
 
 public:
 	System()
@@ -16,21 +12,23 @@ public:
 		ParseDataStructure();
 	}
 
+	~System()
+	{
+		m_EntityIDToIndex.clear();
+		m_ComponentHash.clear();
+		m_Admin = nullptr;
+	}
+
+	template<typename T>
+	T* GetComponent(EntityID ID)
+	{
+		return m_Admin->GetComponent<T>(ID);
+	}
+
+private:
 	virtual void SetEntityAdmin(EntityAdmin* admin)
 	{
 		m_Admin = admin;
-	}
-
-	void ParseDataStructure()
-	{
-		_ParseDataStructure<s_NumComponentCount - 1>();
-
-#ifdef _DEBUG
-		for (auto& hash : m_ComponentHash)
-		{
-			std::cout << "Hash: " << hash << std::endl;
-		}
-#endif // DEBUG
 	}
 
 	virtual void OnEntityCreated(const Entity& entity)
@@ -64,13 +62,6 @@ public:
 		RemoveEntityCache(entity.EntityID);
 	}
 
-	template<typename T>
-	T* Get(EntityID ID)
-	{
-		return m_Admin->GetComponent<T>(ID);
-	}
-
-private:
 	void RemoveEntityCache(EntityID ID)
 	{
 		size_t index = m_EntityIDToIndex[ID];
@@ -78,24 +69,31 @@ private:
 		m_EntityIDToIndex.erase(ID);
 	}
 
-private:
-	template<size_t Index>
-	void _ParseDataStructure()
+	void ParseDataStructure()
 	{
-		using t = typename TypeAt<Index, Type>::Type;
-		m_ComponentHash.insert(typeid(t).hash_code());
-		_ParseDataStructure<Index - 1>();
+		using Type = TypeList<ComponentType...>;
+
+		ParseDataStructure<Type>(std::make_index_sequence<Size<Type>()>());
+
+#ifdef _DEBUG
+		for (auto& hash : m_ComponentHash)
+		{
+			std::cout << "Hash: " << hash << std::endl;
+		}
+#endif // DEBUG
 	}
 
-	template<>
-	void _ParseDataStructure<0>()
+	template<typename TypeList, std::size_t... Is>
+	constexpr void ParseDataStructure(std::index_sequence<Is...>)
 	{
-		using t = typename TypeAt<0, Type>::Type;
-		m_ComponentHash.insert(typeid(t).hash_code());
+		(ParseDataStructureImpl<typename TypeAt<Is, TypeList>::Type>(), ...);
 	}
 
-public:
-	static constexpr uint8_t s_NumComponentCount = sizeof...(ComponentType);
+	template<typename T>
+	constexpr void ParseDataStructureImpl()
+	{
+		m_ComponentHash.insert(typeid(T).hash_code());
+	}
 
 protected:
 	std::vector<EntityID> m_EntitiesCache;

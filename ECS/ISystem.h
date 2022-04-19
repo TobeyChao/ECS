@@ -5,6 +5,8 @@ class EntityAdmin;
 class ISystem
 {
 public:
+	virtual ~ISystem() = default;
+
 	virtual void SetEntityAdmin(EntityAdmin* admin) = 0;
 
 	virtual void Update(float deltaTime) = 0;

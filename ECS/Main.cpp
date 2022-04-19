@@ -1,4 +1,5 @@
 #include <iostream>
+#include <thread>
 #include "EntityAdmin.h"
 #include "System.h"
 
@@ -39,29 +40,79 @@ public:
 	{
 		for (auto& it : m_EntitiesCache)
 		{
-			Position* pos = Get<Position>(it);
-			Velocity* vel = Get<Velocity>(it);
+			Position* pos = GetComponent<Position>(it);
+			Velocity* vel = GetComponent<Velocity>(it);
 
 			pos->x += vel->x * deltaTime;
 			pos->y += vel->y * deltaTime;
 			pos->z += vel->z * deltaTime;
+
+			//cout << "Now Pos: (" << pos->x << ", " << pos->y << ", " << pos->z << ")" << endl;
 		}
 	}
 };
 
+struct MyStruct
+{
+	Position* pos;
+	Velocity* vel;
+};
+
+std::vector<MyStruct*> g_Vec;
+
 int main()
 {
-	EntityAdmin admin;
-	admin.RegisterSystem<MoveSystem>();
+	EntityAdmin* admin = new EntityAdmin();
+	admin->RegisterSystem<MoveSystem>();
 
 	using T = TypeList<Position, Velocity>;
-	admin.RegisterArchetype<T>();
+	admin->RegisterArchetype<T>();
 
-	const EntityID& id = admin.CreateEntity<T>();
-	Position* p1 = admin.SetComponentData<Position>(id, 1.0f, 1.0f, 1.0f);
-	Velocity* p2 = admin.SetComponentData<Velocity>(id, 2.0f, 2.0f, 2.0f);
+	for (size_t i = 0; i < 10000; i++)
+	{
+		const EntityID& id = admin->CreateEntity<T>();
+		admin->SetComponentData<Position>(id, 1.0f, 1.0f, 1.0f);
+		admin->SetComponentData<Velocity>(id, 2.0f, 2.0f, 2.0f);
+	}
+	
+	while (true)
+	{
+		auto start = std::chrono::high_resolution_clock::now();
+		admin->Update(0.033f);
+		auto end = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double, std::milli> elapsed = end - start;
+		std::cout << "Waited " << elapsed.count() << " ms\n";
+	}
 
-	admin.Update(1.f);
+	admin->Shutdown();
+	delete admin;
+
+	/*for (size_t i = 0; i < 100000; i++)
+	{
+		MyStruct* s = new MyStruct();
+		s->pos = new Position(1.0f, 1.0f, 1.0f);
+		s->vel = new Velocity(2.0f, 2.0f, 2.0f);
+		g_Vec.push_back(s);
+	}
+
+	while (true)
+	{
+		auto start = std::chrono::high_resolution_clock::now();
+		
+		for (size_t i = 0; i < g_Vec.size(); i++)
+		{
+			Position* pos = g_Vec[i]->pos;
+			Velocity* vel = g_Vec[i]->vel;
+
+			pos->x += vel->x * 0.033f;
+			pos->y += vel->y * 0.033f;
+			pos->z += vel->z * 0.033f;
+		}
+
+		auto end = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double, std::milli> elapsed = end - start;
+		std::cout << "Waited " << elapsed.count() << " ms\n";
+	}*/
 
 	return 0;
 }

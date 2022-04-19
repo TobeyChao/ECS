@@ -2,21 +2,41 @@
 #include "Memory/DefaultMultiTypeFixedChunk.h"
 #include <memory>
 
-struct Archetype
+class ArchetypeStorage
 {
+public:
 	using PoolType = typename DefaultMultiTypeFixedChunk::Type;
-};
 
-namespace ArchetypeStorage
-{
-	std::unordered_map<size_t, Archetype::PoolType*> g_Pools;
-
-	Archetype::PoolType& Get(size_t hash)
+	PoolType& Get(size_t index)
 	{
-		if (!g_Pools.contains(hash))
-		{
-			g_Pools[hash] = new Archetype::PoolType();
-		}
-		return *g_Pools[hash];
+		return *m_Pools[index];
 	}
-}
+
+	void DestroyAll()
+	{
+		for (auto& pool : m_Pools)
+		{
+			pool.reset();
+		}
+		m_Pools.clear();
+	}
+
+	size_t GetIndex(size_t hash)
+	{
+		return m_HashToIndex[hash];
+	}
+
+	PoolType& AddPool(size_t hash)
+	{
+		if (!m_HashToIndex.contains(hash))
+		{
+			m_Pools.push_back(std::make_shared<PoolType>());
+			m_HashToIndex[hash] = m_Pools.size() - 1;
+		}
+		return *m_Pools[m_HashToIndex[hash]];
+	}
+
+private:
+	std::unordered_map<size_t, size_t> m_HashToIndex;
+	std::vector<std::shared_ptr<PoolType>> m_Pools;
+};

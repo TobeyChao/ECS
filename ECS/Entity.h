@@ -9,5 +9,6 @@ public:
 	EntityID EntityID;
 	ChunkHandle* MemHandle;
 	size_t Hash;
+	size_t PoolIndex;
 	std::unordered_set<size_t> ComponentHash;
 };
