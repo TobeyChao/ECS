@@ -157,6 +157,7 @@ protected:
 		// ¿ÕµÄÈ¥µô
 		if (m_CurIndex == 0)
 		{
+			m_CurIndex = m_ElementMaxCount;
 			m_FreeChunks.push(m_UsedChunks.back());
 			m_UsedChunks.pop_back();
 		}

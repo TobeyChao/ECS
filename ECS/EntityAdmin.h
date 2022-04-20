@@ -20,8 +20,7 @@ public:
 		Entity entity;
 		entity.Hash = typeid(T).hash_code();
 		entity.EntityID = m_NextEntityID;
-		entity.PoolIndex = m_ArchetypeStorage.GetIndex(typeid(T).hash_code());
-		entity.MemHandle = m_ArchetypeStorage.Get(entity.PoolIndex).Allocate();
+		entity.MemHandle = m_ArchetypeStorage.Get(typeid(T).hash_code()).Allocate();
 		// …Ë÷√Entity«©√˚
 		SetEntityComHash<T>(entity, std::make_index_sequence<Size<T>()>());
 		m_Entities[m_NextEntityID] = std::move(entity);
@@ -35,7 +34,7 @@ public:
 	T* SetComponentData(EntityID ID, Args&&... args)
 	{
 		const Entity& entity = m_Entities[ID];
-		T* ret = m_ArchetypeStorage.Get(entity.PoolIndex).template Create<T, Args...>(entity.MemHandle, std::forward<decltype(args)>(args)...);
+		T* ret = m_ArchetypeStorage.Get(entity.Hash).template Create<T, Args...>(entity.MemHandle, std::forward<decltype(args)>(args)...);
 		return ret;
 	}
 
@@ -44,7 +43,7 @@ public:
 	T* GetComponent(EntityID ID)
 	{
 		const Entity& entity = m_Entities[ID];
-		return m_ArchetypeStorage.Get(entity.PoolIndex).Get<T>(entity.MemHandle);
+		return m_ArchetypeStorage.Get(entity.Hash).Get<T>(entity.MemHandle);
 	}
 
 	// œ˙ªŸEntity
@@ -52,7 +51,7 @@ public:
 	{
 		NotifySystemEntityCreated(m_Entities[ID]);
 
-		m_ArchetypeStorage.Get(m_Entities[ID].PoolIndex).Free(m_Entities[ID].MemHandle);
+		m_ArchetypeStorage.Get(m_Entities[ID].Hash).Free(m_Entities[ID].MemHandle);
 		m_Entities.erase(ID);
 	}
 
@@ -69,7 +68,7 @@ public:
 	template <typename TypeList>
 	void RegisterArchetype()
 	{
-		m_ArchetypeStorage.AddPool(typeid(TypeList).hash_code()).template Init<TypeList>();
+		m_ArchetypeStorage.Get(typeid(TypeList).hash_code()).template Init<TypeList>();
 	}
 
 	void Update(float deltaTime)
