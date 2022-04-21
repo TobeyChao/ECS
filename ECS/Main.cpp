@@ -52,72 +52,76 @@ public:
 	}
 };
 
-//struct MyStruct
-//{
-//	Position* pos;
-//	Velocity* vel;
-//};
-//
-//std::vector<MyStruct*> g_Vec;
+struct MyStruct
+{
+	Position* pos;
+	Velocity* vel;
+};
+
+std::vector<MyStruct*> g_Vec;
 
 int main()
 {
-	EntityAdmin* admin = new EntityAdmin();
-	admin->RegisterSystem<MoveSystem>();
-
-	using T = TypeList<Position, Velocity>;
-	admin->RegisterArchetype<T>();
-
-	for (size_t i = 0; i < 10000; i++)
 	{
+		EntityAdmin* admin = new EntityAdmin();
+		admin->RegisterSystem<MoveSystem>();
+
+		using T = TypeList<Position, Velocity>;
+		admin->RegisterArchetype<T>();
+
+		for (size_t i = 0; i < 10000; i++)
+		{
+			const EntityID& id = admin->CreateEntity<T>();
+			admin->SetComponentData<Position>(id, 1.0f, 1.0f, 1.0f);
+			admin->SetComponentData<Velocity>(id, 2.0f, 2.0f, 2.0f);
+		}
+
+		while (true)
+		{
+			auto start = std::chrono::high_resolution_clock::now();
+			admin->Update(0.033f);
+			auto end = std::chrono::high_resolution_clock::now();
+			std::chrono::duration<double, std::milli> elapsed = end - start;
+			std::cout << "Waited " << elapsed.count() << " ms\n";
+		}
+
+		admin->DestroyEntity(681);
+
 		const EntityID& id = admin->CreateEntity<T>();
 		admin->SetComponentData<Position>(id, 1.0f, 1.0f, 1.0f);
 		admin->SetComponentData<Velocity>(id, 2.0f, 2.0f, 2.0f);
-	}
-	
-	while (true)
-	{
-		auto start = std::chrono::high_resolution_clock::now();
-		admin->Update(0.033f);
-		auto end = std::chrono::high_resolution_clock::now();
-		std::chrono::duration<double, std::milli> elapsed = end - start;
-		std::cout << "Waited " << elapsed.count() << " ms\n";
+
+		admin->Shutdown();
+		delete admin;
 	}
 
-	admin->DestroyEntity(681);
-
-	const EntityID& id = admin->CreateEntity<T>();
-	admin->SetComponentData<Position>(id, 1.0f, 1.0f, 1.0f);
-	admin->SetComponentData<Velocity>(id, 2.0f, 2.0f, 2.0f);
-
-	admin->Shutdown();
-	delete admin;
-
-	//for (size_t i = 0; i < 10000; i++)
 	//{
-	//	MyStruct* s = new MyStruct();
-	//	s->pos = new Position(1.0f, 1.0f, 1.0f);
-	//	s->vel = new Velocity(2.0f, 2.0f, 2.0f);
-	//	g_Vec.push_back(s);
-	//}
-
-	//while (true)
-	//{
-	//	auto start = std::chrono::high_resolution_clock::now();
-	//	
-	//	for (size_t i = 0; i < g_Vec.size(); i++)
+	//	for (size_t i = 0; i < 10000; i++)
 	//	{
-	//		Position* pos = g_Vec[i]->pos;
-	//		Velocity* vel = g_Vec[i]->vel;
-
-	//		pos->x += vel->x * 0.033f;
-	//		pos->y += vel->y * 0.033f;
-	//		pos->z += vel->z * 0.033f;
+	//		MyStruct* s = new MyStruct();
+	//		s->pos = new Position(1.0f, 1.0f, 1.0f);
+	//		s->vel = new Velocity(2.0f, 2.0f, 2.0f);
+	//		g_Vec.push_back(s);
 	//	}
 
-	//	auto end = std::chrono::high_resolution_clock::now();
-	//	std::chrono::duration<double, std::milli> elapsed = end - start;
-	//	std::cout << "Waited " << elapsed.count() << " ms\n";
+	//	while (true)
+	//	{
+	//		auto start = std::chrono::high_resolution_clock::now();
+
+	//		for (size_t i = 0; i < g_Vec.size(); i++)
+	//		{
+	//			Position* pos = g_Vec[i]->pos;
+	//			Velocity* vel = g_Vec[i]->vel;
+
+	//			pos->x += vel->x * 0.033f;
+	//			pos->y += vel->y * 0.033f;
+	//			pos->z += vel->z * 0.033f;
+	//		}
+
+	//		auto end = std::chrono::high_resolution_clock::now();
+	//		std::chrono::duration<double, std::milli> elapsed = end - start;
+	//		std::cout << "Waited " << elapsed.count() << " ms\n";
+	//	}
 	//}
 
 	return 0;

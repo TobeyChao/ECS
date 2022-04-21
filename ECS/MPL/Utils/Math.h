@@ -1,5 +1,5 @@
-#ifndef __MATH_H__
-#define __MATH_H__
+#ifndef MATH_
+#define MATH_
 #include <intrin.h>
 #include <cstdint>
 
@@ -35,4 +35,4 @@ namespace Math
 		return (value / divisor) * divisor == value;
 	}
 }
-#endif // !__MATH_H__
+#endif // MATH_

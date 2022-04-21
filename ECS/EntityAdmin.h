@@ -1,5 +1,5 @@
-#ifndef __ENTITY_ADMIN__
-#define __ENTITY_ADMIN__
+#ifndef ENTITYADMIN_
+#define ENTITYADMIN_
 #include "Entity.h"
 #include "ISystem.h"
 #include "ArchetypeStorage.h"
@@ -48,7 +48,7 @@ public:
 	T* SetComponentData(EntityID ID, Args&&... args)
 	{
 		const Entity& entity = m_Entities[ID];
-		T* ret = m_ArchetypeStorage.Get(entity.Hash).template Create<T, Args...>(entity.MemHandle, std::forward<decltype(args)>(args)...);
+		T* ret = m_ArchetypeStorage.Get(entity.PoolIndex).template Create<T, Args...>(entity.MemHandle, std::forward<decltype(args)>(args)...);
 		return ret;
 	}
 
@@ -57,7 +57,7 @@ public:
 	T* GetComponent(EntityID ID)
 	{
 		const Entity& entity = m_Entities[ID];
-		return m_ArchetypeStorage.Get(entity.Hash).Get<T>(entity.MemHandle);
+		return m_ArchetypeStorage.Get(entity.PoolIndex).Get<T>(entity.MemHandle);
 	}
 
 	// Ïú»ÙEntity
@@ -65,7 +65,7 @@ public:
 	{
 		Entity& entity = m_Entities[ID];
 		NotifySystemEntityDestroyed(entity);
-		m_ArchetypeStorage.Get(entity.Hash).Free(entity.MemHandle);
+		m_ArchetypeStorage.Get(entity.PoolIndex).Free(entity.MemHandle);
 		entity.IsValid = false;
 		m_FreeEntities.push(ID);
 	}
@@ -83,7 +83,7 @@ public:
 	template <typename TypeList>
 	void RegisterArchetype()
 	{
-		m_ArchetypeStorage.Get(typeid(TypeList).hash_code()).template Init<TypeList>();
+		m_ArchetypeStorage.AddPool(typeid(TypeList).hash_code()).template Init<TypeList>();
 	}
 
 	void Update(float deltaTime)
@@ -108,7 +108,8 @@ private:
 		entity.IsValid = true;
 		entity.Hash = typeid(T).hash_code();
 		entity.EntityID = ID;
-		entity.MemHandle = m_ArchetypeStorage.Get(typeid(T).hash_code()).Allocate();
+		entity.PoolIndex = m_ArchetypeStorage.GetIndex(typeid(T).hash_code());
+		entity.MemHandle = m_ArchetypeStorage.Get(entity.PoolIndex).Allocate();
 		SetEntityComHash<T>(entity, std::make_index_sequence<Length<T>()>());
 	}
 
@@ -158,4 +159,4 @@ private:
 	// Component Pool
 	ArchetypeStorage m_ArchetypeStorage;
 };
-#endif // __ENTITY_ADMIN__
+#endif // ENTITYADMIN_

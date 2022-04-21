@@ -1,5 +1,5 @@
-#ifndef __ALIGN__
-#define __ALIGN__
+#ifndef ALIGN_
+#define ALIGN_
 #include "Math.h"
 
 namespace Math
@@ -39,4 +39,4 @@ namespace Math
 		return value == 0 ? 0 : 1 << Log2(value);
 	}
 }
-#endif // !__ALIGN__
+#endif // ALIGN_

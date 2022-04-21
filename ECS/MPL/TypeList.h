@@ -1,6 +1,6 @@
-#pragma once
+#ifndef TYPELIST_
+#define TYPELIST_
 #include <tuple>
-#include <functional>
 
 #pragma region TypeList
 using std::tuple;
@@ -300,20 +300,21 @@ struct TypeInsert<0, TypeList<TS...>, U>
 
 #pragma region ForEach
 template <typename Functor, typename T>
-constexpr void _ForEachImpl(Functor&& f)
+constexpr void ForEachImpl(Functor&& f)
 {
 	f.template operator() < T > ();
 }
 
 template <typename TypeList, typename Functor, std::size_t... Is>
-constexpr void _ForEach(Functor&& f, std::index_sequence<Is...>)
+constexpr void ForEachCall(Functor&& f, std::index_sequence<Is...>)
 {
-	(_ForEachImpl<Functor, typename TypeAt<Is, TypeList>::Type>(std::forward<Functor>(f)), ...);
+	(ForEachImpl<Functor, typename TypeAt<Is, TypeList>::Type>(std::forward<Functor>(f)), ...);
 }
 
 template <typename TypeList, typename Functor>
 constexpr void ForEach(Functor&& f)
 {
-	_ForEach<TypeList, Functor>(std::forward<Functor>(f), std::make_index_sequence<Length<TypeList>()>());
+	ForEachCall<TypeList, Functor>(std::forward<Functor>(f), std::make_index_sequence<Length<TypeList>()>());
 }
 #pragma endregion
+#endif // TYPELIST_

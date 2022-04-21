@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SYSTEM_
+#define SYSTEM_
 #include "MPL/TypeList.h"
 #include "TypeID.h"
 #include "ISystem.h"
@@ -107,3 +108,4 @@ private:
 	std::unordered_set<size_t> m_ComponentHash;
 	EntityAdmin* m_Admin;
 };
+#endif // SYSTEM_
