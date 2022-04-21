@@ -40,7 +40,7 @@ protected:
 	{
 		m_ElementSize = SizeSum<TypeList>::Value;
 		m_ElementMaxCount = ChunkSize / m_ElementSize;
-		_ParseDataStructure<TypeList>(std::make_index_sequence<Size<TypeList>()>());
+		_ParseDataStructure<TypeList>(std::make_index_sequence<Length<TypeList>()>());
 
 #ifdef _DEBUG
 		std::cout << "ElementSize: " << m_ElementSize << std::endl;
@@ -48,7 +48,7 @@ protected:
 		for (auto& [hash, tpl] : m_TypeOffset)
 		{
 			auto& [offset, size] = tpl;
-			std::cout << "Hash: " << hash << " Addr: " << offset << " Size: " << size << std::endl;
+			std::cout << "Hash: " << hash << " Addr: " << offset << " Length: " << size << std::endl;
 		}
 #endif // DEBUG
 		return true;
@@ -196,7 +196,7 @@ private:
 	// 当前块的数据索引
 	uint64_t m_CurIndex;
 
-	// TypeHash -> [Offset, Size]
+	// TypeHash -> [Offset, Length]
 	std::unordered_map<size_t, std::tuple<uint64_t, uint64_t>> m_TypeOffset;
 
 	// 最大Element数量

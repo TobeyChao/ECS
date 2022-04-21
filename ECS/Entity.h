@@ -10,4 +10,6 @@ public:
 	ChunkHandle* MemHandle;
 	size_t Hash;
 	std::unordered_set<size_t> ComponentHash;
+
+	bool IsValid;
 };

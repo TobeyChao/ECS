@@ -115,8 +115,5 @@
     <ClInclude Include="Memory\ChunkHandle.h">
       <Filter>Memory</Filter>
     </ClInclude>
-    <ClInclude Include="Memory\IMemoryPool.h">
-      <Filter>Memory</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

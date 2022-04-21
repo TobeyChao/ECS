@@ -1,5 +1,7 @@
 #pragma once
 #include "MPL/TypeList.h"
+#include "TypeID.h"
+#include "ISystem.h"
 
 template<typename ...ComponentType>
 class System : public ISystem
@@ -8,11 +10,13 @@ class System : public ISystem
 
 public:
 	System()
+		:
+		m_Admin(nullptr)
 	{
 		ParseDataStructure();
 	}
 
-	~System()
+	~System() override
 	{
 		m_EntityIDToIndex.clear();
 		m_ComponentHash.clear();
@@ -26,12 +30,12 @@ public:
 	}
 
 private:
-	virtual void SetEntityAdmin(EntityAdmin* admin)
+	void SetEntityAdmin(EntityAdmin* admin) override
 	{
 		m_Admin = admin;
 	}
 
-	virtual void OnEntityCreated(const Entity& entity)
+	void OnEntityCreated(const Entity& entity) override
 	{
 		for (const size_t& comHash : m_ComponentHash)
 		{
@@ -44,7 +48,7 @@ private:
 		m_EntityIDToIndex[entity.EntityID] = m_EntitiesCache.size() - 1;
 	}
 
-	virtual void OnEntityModified(const Entity& entity)
+	void OnEntityModified(const Entity& entity) override
 	{
 		// 如果改变了的Entity没有符合的组件啦，就把他删掉啦
 		for (const size_t& comHash : m_ComponentHash)
@@ -57,7 +61,7 @@ private:
 		}
 	}
 
-	virtual void OnEntityDestroyed(const Entity& entity)
+	void OnEntityDestroyed(const Entity& entity) override
 	{
 		RemoveEntityCache(entity.EntityID);
 	}
@@ -73,7 +77,7 @@ private:
 	{
 		using Type = TypeList<ComponentType...>;
 
-		ParseDataStructure<Type>(std::make_index_sequence<Size<Type>()>());
+		ParseDataStructure<Type>(std::make_index_sequence<Length<Type>()>());
 
 #ifdef _DEBUG
 		for (auto& hash : m_ComponentHash)

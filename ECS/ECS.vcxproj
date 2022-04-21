@@ -164,7 +164,6 @@
     <ClInclude Include="Memory\DefaultMultiTypeFixedChunk.h" />
     <ClInclude Include="Memory\FixedChunkCacheFriendlyLink.h" />
     <ClInclude Include="Memory\FreeList.h" />
-    <ClInclude Include="Memory\IMemoryPool.h" />
     <ClInclude Include="Memory\MultiTypeFixedChunk.h" />
     <ClInclude Include="Memory\PlacementNewEmbeddedLink.h" />
     <ClInclude Include="MPL\MPL.h" />

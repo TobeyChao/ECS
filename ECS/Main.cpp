@@ -68,21 +68,21 @@ int main()
 	using T = TypeList<Position, Velocity>;
 	admin->RegisterArchetype<T>();
 
-	for (size_t i = 0; i < 683; i++)
+	for (size_t i = 0; i < 10000; i++)
 	{
 		const EntityID& id = admin->CreateEntity<T>();
 		admin->SetComponentData<Position>(id, 1.0f, 1.0f, 1.0f);
 		admin->SetComponentData<Velocity>(id, 2.0f, 2.0f, 2.0f);
 	}
 	
-	//while (true)
-	//{
-	//	auto start = std::chrono::high_resolution_clock::now();
-	//	admin->Update(0.033f);
-	//	auto end = std::chrono::high_resolution_clock::now();
-	//	std::chrono::duration<double, std::milli> elapsed = end - start;
-	//	std::cout << "Waited " << elapsed.count() << " ms\n";
-	//}
+	while (true)
+	{
+		auto start = std::chrono::high_resolution_clock::now();
+		admin->Update(0.033f);
+		auto end = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double, std::milli> elapsed = end - start;
+		std::cout << "Waited " << elapsed.count() << " ms\n";
+	}
 
 	admin->DestroyEntity(681);
 
