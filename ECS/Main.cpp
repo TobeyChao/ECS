@@ -1,7 +1,7 @@
 #include <iostream>
 #include <thread>
-#include "EntityAdmin.h"
-#include "System.h"
+#include "ECS/EntityAdmin.h"
+#include "ECS/System.h"
 
 using namespace std;
 

@@ -52,18 +52,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TypeID.h">
-      <Filter>ECS</Filter>
-    </ClInclude>
-    <ClInclude Include="Entity.h">
-      <Filter>ECS</Filter>
-    </ClInclude>
-    <ClInclude Include="EntityAdmin.h">
-      <Filter>ECS</Filter>
-    </ClInclude>
-    <ClInclude Include="System.h">
-      <Filter>ECS</Filter>
-    </ClInclude>
     <ClInclude Include="MPL\Utils\CompileTimeCounter.h">
       <Filter>MPL\Utils</Filter>
     </ClInclude>
@@ -81,9 +69,6 @@
     </ClInclude>
     <ClInclude Include="MPL\TypeList.h">
       <Filter>MPL</Filter>
-    </ClInclude>
-    <ClInclude Include="ISystem.h">
-      <Filter>ECS</Filter>
     </ClInclude>
     <ClInclude Include="Memory\ConstantElementCountGrowth.h">
       <Filter>Memory</Filter>
@@ -109,11 +94,26 @@
     <ClInclude Include="Memory\ConstantChunkSizeGrowth.h">
       <Filter>Memory</Filter>
     </ClInclude>
-    <ClInclude Include="ArchetypeStorage.h">
-      <Filter>ECS</Filter>
-    </ClInclude>
     <ClInclude Include="Memory\ChunkHandle.h">
       <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS\Entity.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS\EntityAdmin.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS\ISystem.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS\System.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS\TypeID.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS\ArchetypeStorage.h">
+      <Filter>ECS</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

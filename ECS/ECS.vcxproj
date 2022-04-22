@@ -151,12 +151,12 @@
     <ClCompile Include="MPL\Test\TestStringHash.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ArchetypeStorage.h" />
-    <ClInclude Include="Entity.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="ISystem.h" />
+    <ClInclude Include="ECS\ArchetypeStorage.h" />
+    <ClInclude Include="ECS\Entity.h" />
+    <ClInclude Include="ECS\EntityAdmin.h" />
+    <ClInclude Include="ECS\ISystem.h" />
+    <ClInclude Include="ECS\System.h" />
+    <ClInclude Include="ECS\TypeID.h" />
     <ClInclude Include="Memory\ChunkHandle.h" />
     <ClInclude Include="Memory\ConstantChunkSizeGrowth.h" />
     <ClInclude Include="Memory\ConstantElementCountGrowth.h" />
@@ -172,18 +172,6 @@
     <ClInclude Include="MPL\Utils\CompileTimeCounter.h" />
     <ClInclude Include="MPL\Utils\CompileTimeStringHash.h" />
     <ClInclude Include="MPL\Utils\Math.h" />
-    <ClInclude Include="System.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="EntityAdmin.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="TypeID.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </ExcludedFromBuild>
-    </ClInclude>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
